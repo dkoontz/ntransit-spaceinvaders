@@ -1,0 +1,10 @@
+.DS_Store
+Library
+Publish
+Temp
+*.userprefs
+*.pidb
+*.test-cache
+*.sln
+*.csproj
+_ReSharper*
