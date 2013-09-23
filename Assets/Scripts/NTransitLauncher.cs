@@ -16,37 +16,35 @@ public class NTransitLauncher : MonoBehaviour {
 		var program = @"
 <EnemyGameObjects> => Enemies(CollectionStorage).ICollection
 UnityTimingEvent(UnityTimingEvents).Update => Enemies.Send
-Enemies.Out => Clone(Clone).In
-Clone.Out1 => SplitForProjectileCheck(ForEach).In
+Enemies.Out => SetEnemySpeed(SetSpeedBasedOnNumberOfEnemies).In
+SetEnemySpeed.Out => SplitForProjectileCheck(ForEach).In
 'Projectile' => TouchingProjectile(TriggerEntered).Tag
 SplitForProjectileCheck.Out => TouchingProjectile.In
-TouchingProjectile.Yes => Enemies.Remove
+'Destroy' => BlowUp(TriggerAction).Action
+TouchingProjectile.Yes => BlowUp.In
+BlowUp.Out => Enemies.Remove
 TouchingProjectile.No => EnemyHorizontalMovement(TranslateGameObject).In
 EnemyHorizontalMovement.Out => Drop(DropIp).In
 
-'Screen Edge' => TouchingWall(AnyInCollectionTriggerEntered).Tag
-Clone.Out2 => TouchingWall.In
-TouchingWall.Yes => SplitForAnimation(ForEach).In
-TouchingWall.No => Drop.In
+'Screen Edge' => TouchingWall(AnyInCollectionTouchingTrigger).Tag
+SplitForProjectileCheck.Original => TouchingWall.IEnumerable
+TouchingWall.Enter => SplitForAnimation(ForEach).In
 'Slide Down' => SlideDown(StartiTweenEvent).TweenName
 SplitForAnimation.Out => SlideDown.In
-SlideDown.Out => Drop.In
-";
 
-//ConvertEnemyObjects(ConvertIEnumerableToInformationPacketStream).Out => WaitForUnityTick(IpQueue).In
-//ConvertEnemyObjects.AUTO => WaitUntilAllObjectsAreRecieved(Gate).Open
-//
-//WaitForUnityTick.Out => UnityTickCheckpoint(Checkpoint).In
-//UnityTickCheckpoint.Out => CheckEnemiesForWallCollision(CheckGameObjectsForTrigger).In
-//CheckEnemiesForWallCollision.NoCollision => EnemyHorizontalMovement(TranslateGameObject).In
-//CheckEnemiesForWallCollision.Collision => AnimateDownOneRow(MovementTween).In
-//1.0 => AnimateDownOneRow.Duration
-//<EnemyTweenDirection> => AnimateDownOneRow.Direction
-//AnimateDownOneRow.Tweening => WaitForUnityTick.In
-//AnimateDownOneRow.Complete => WaitForUnityTick.In
-//'Screen Edge' => CheckEnemiesForWallCollision.Tag
-//EnemyHorizontalMovement.Out => WaitForUnityTick.In
-//UnityTimingEvent(UnityTimingEvents).Update => UnityTickCheckpoint.Activate
+'CanMove' => TurnOffMovement(SetComponentField).Field
+false => TurnOffMovement.Value
+'TranslationMovement' => TurnOffMovement.ComponentName
+SlideDown.Out => TurnOffMovement.Object
+'TurnAround' => ReverseDirection(TriggerAction).Action
+TurnOffMovement.Out => ReverseDirection.In
+
+ReverseDirection.Out => Drop.In
+SplitForAnimation.Original => Drop.In
+TouchingWall.Stay => Drop.In
+TouchingWall.Exit => Drop.In
+TouchingWall.None => Drop.In
+";
 
 		Dictionary<string, object> initialData = new Dictionary<string, object>();
 		initialData["EnemyGameObjects"] = Invaders;

@@ -6,6 +6,7 @@ namespace NTransit {
 		public class TranslationMovement : MonoBehaviour {
 			public Vector3 Direction;
 			public float Speed;
+			public bool CanMove = true;
 		}
 	}
 }

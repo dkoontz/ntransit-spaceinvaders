@@ -21,7 +21,9 @@ namespace NTransit {
 						throw new ArgumentException(string.Format("IP content was {0}, but must be a GameObject or MonoBehaviour", ip.Content.GetType()));
 					}
 
-					movement.transform.Translate(movement.Direction * movement.Speed * UnityTime.DeltaTime, Space.World);
+					if (movement.CanMove) {
+						movement.transform.Translate(movement.Direction * movement.Speed * UnityTime.DeltaTime, Space.World);
+					}
 
 					Send("Out", ip);
 				};

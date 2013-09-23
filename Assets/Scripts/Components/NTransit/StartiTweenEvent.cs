@@ -9,6 +9,7 @@ namespace NTransit {
 		[InputPort("TweenName")]
 		public class StartiTweenEvent : PropagatorComponent {
 			string tweenName;
+			string onCompleteCallback;
 
 			public StartiTweenEvent(string name) : base(name) {
 				Receive["TweenName"] = data => tweenName = data.Accept().ContentAs<string>();
@@ -27,6 +28,7 @@ namespace NTransit {
 					}
 
 					iTweenEvent.GetEvent(gameObject, tweenName).Play();
+
 					Send("Out", ip);
 				};
 			}
