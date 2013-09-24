@@ -7,17 +7,18 @@ namespace NTransit {
 	namespace Unity {
 		[InputPort("Tag")]
 		[InputPort("In")]
-		[OutputPort("Yes")]
-		[OutputPort("No")]
-		public abstract class TriggerBase : Component {
-			protected string tag;
+		[OutputPort("Enter")]
+		[OutputPort("Exit")]
+		[OutputPort("Stay")]
+		[OutputPort("None")]
+		public class TouchingTrigger : Component {
+			string tag;
 
-			protected TriggerBase(string name) : base(name) {
+			public TouchingTrigger(string name) : base(name) {
 				Receive["Tag"] = data => tag = data.Accept().ContentAs<string>();
 
 				Receive["In"] = data => {
 					var ip = data.Accept();
-					var collision = false;
 					CollisionRecorder collisionRecord;
 					string objectName;
 
@@ -39,27 +40,46 @@ namespace NTransit {
 						throw new System.InvalidOperationException(string.Format("Object being checked for collision '{0}' must have a CollisionRecorder component attached", objectName));
 					}
 
+					var entered = false;
+					var stay = false;
+					var exited = false;
 					if (!string.IsNullOrEmpty(tag)) {
-						if (SelectCheckType(collisionRecord).Keys.Any(go => go.tag == tag)) {
-							collision = true;
+						if (collisionRecord.TriggersEntered.Keys.Any(go => go.tag == tag)) {
+							entered = true;
+						}
+						else if (collisionRecord.TriggersStay.Keys.Any(go => go.tag == tag)) {
+							stay = true;
+						}
+						else if (collisionRecord.TriggersExited.Keys.Any(go => go.tag == tag)) {
+							exited = true;
 						}
 					}
 					else {
-						if (SelectCheckType(collisionRecord).Count > 0) {
-							collision = true;
+						if (collisionRecord.TriggersEntered.Count > 0) {
+							entered = true;
+						}
+						else if (collisionRecord.TriggersStay.Count > 0) {
+							stay = true;
+						}
+						else if (collisionRecord.TriggersExited.Count > 0) {
+							exited = true;
 						}
 					}
 
-					if (collision) {
-						Send("Yes", ip);
+					if (entered) {
+						Send("Enter", ip);
+					}
+					else if(exited){
+						Send("Exit", ip);
+					}
+					else if(stay){
+						Send("Stay", ip);
 					}
 					else {
-						Send("No", ip);
+						Send("None", ip);
 					}
 				};
 			}
-
-			protected abstract Dictionary<GameObject, Collider> SelectCheckType(CollisionRecorder collisionRecord);
 		}
 	}
 }

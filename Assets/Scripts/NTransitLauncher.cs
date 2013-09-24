@@ -14,36 +14,38 @@ public class NTransitLauncher : MonoBehaviour {
 	void Start () {
 		UnityTime.Time = Time.time;
 		var program = @"
-<EnemyGameObjects> => Enemies(CollectionStorage).ICollection
-UnityTimingEvent(UnityTimingEvents).Update => Enemies.Send
-Enemies.Out => SetEnemySpeed(SetSpeedBasedOnNumberOfEnemies).In
-SetEnemySpeed.Out => SplitForProjectileCheck(ForEach).In
-'Projectile' => TouchingProjectile(TriggerEntered).Tag
-SplitForProjectileCheck.Out => TouchingProjectile.In
-'Destroy' => BlowUp(TriggerAction).Action
-TouchingProjectile.Yes => BlowUp.In
-BlowUp.Out => Enemies.Remove
-TouchingProjectile.No => EnemyHorizontalMovement(TranslateGameObject).In
-EnemyHorizontalMovement.Out => Drop(DropIp).In
+<EnemyGameObjects> -> Enemies(CollectionStorage).ICollection
+UnityTimingEvent(UnityTimingEvents).Update -> Enemies.Send
+Enemies.Out -> SetEnemySpeed(SetSpeedBasedOnNumberOfEnemies).In
+SetEnemySpeed.Out -> SplitForProjectileCheck(ForEach).In
+'Projectile' -> TouchingProjectile(TouchingTrigger).Tag
+SplitForProjectileCheck.Out -> TouchingProjectile.In
+'Destroy' -> BlowUp(TriggerAction).Action
+TouchingProjectile.Enter -> BlowUp.In
+BlowUp.Out -> Enemies.Remove
+TouchingProjectile.None -> EnemyHorizontalMovement(TranslateGameObject).In
+EnemyHorizontalMovement.Out -> Drop(DropIp).In
 
-'Screen Edge' => TouchingWall(AnyInCollectionTouchingTrigger).Tag
-SplitForProjectileCheck.Original => TouchingWall.IEnumerable
-TouchingWall.Enter => SplitForAnimation(ForEach).In
-'Slide Down' => SlideDown(StartiTweenEvent).TweenName
-SplitForAnimation.Out => SlideDown.In
+'Screen Edge' -> TouchingWall(AnyInCollectionTouchingTrigger).Tag
+SplitForProjectileCheck.Original -> TouchingWall.IEnumerable
+TouchingWall.Enter -> SplitForAnimation(ForEach).In
+'Slide Down' -> SlideDown(StartiTweenEvent).TweenName
+SplitForAnimation.Out -> SlideDown.In
 
-'CanMove' => TurnOffMovement(SetComponentField).Field
-false => TurnOffMovement.Value
-'TranslationMovement' => TurnOffMovement.ComponentName
-SlideDown.Out => TurnOffMovement.Object
-'TurnAround' => ReverseDirection(TriggerAction).Action
-TurnOffMovement.Out => ReverseDirection.In
+'CanMove' -> TurnOffMovement(SetComponentField).Field
+false -> TurnOffMovement.Value
+'TranslationMovement' -> TurnOffMovement.ComponentName
+SlideDown.Out -> TurnOffMovement.Object
+'TurnAround' -> ReverseDirection(TriggerAction).Action
+TurnOffMovement.Out -> ReverseDirection.In
 
-ReverseDirection.Out => Drop.In
-SplitForAnimation.Original => Drop.In
-TouchingWall.Stay => Drop.In
-TouchingWall.Exit => Drop.In
-TouchingWall.None => Drop.In
+TouchingProjectile.Stay -> Drop.In
+TouchingProjectile.Exit -> Drop.In
+ReverseDirection.Out -> Drop.In
+SplitForAnimation.Original -> Drop.In
+TouchingWall.Stay -> Drop.In
+TouchingWall.Exit -> Drop.In
+TouchingWall.None -> Drop.In
 ";
 
 		Dictionary<string, object> initialData = new Dictionary<string, object>();
