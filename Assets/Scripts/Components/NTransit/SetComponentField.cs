@@ -13,11 +13,13 @@ namespace NTransit {
 			string fieldName;
 			string componentName;
 			
-			public SetComponentField(string name) : base(name) {
-				Receive["Value"] = data => value = data.Accept().Content;
-				Receive["Field"] = data => fieldName = data.Accept().ContentAs<string>();
-				Receive["ComponentName"] = data => componentName = data.Accept().ContentAs<string>();
-				Receive["Object"] = data => {
+			public SetComponentField(string name) : base(name) { }
+
+			public override void Setup() {
+				InPorts["Value"].Receive = data => value = data.Accept().Content;
+				InPorts["Field"].Receive = data => fieldName = data.Accept().ContentAs<string>();
+				InPorts["ComponentName"].Receive = data => componentName = data.Accept().ContentAs<string>();
+				InPorts["Object"].Receive = data => {
 					var ip = data.Accept();
 					var target = ip.Content;
 					

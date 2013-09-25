@@ -6,8 +6,12 @@ using NTransit;
 namespace NTransit {
 	namespace Unity {
 		public class TranslateGameObject : PropagatorComponent {
-			public TranslateGameObject(string name) : base(name) {
-				Receive["In"] = data => {
+			public TranslateGameObject(string name) : base(name) { }
+
+			public override void Setup() {
+				base.Setup();
+
+				InPorts["In"].Receive = data => {
 					var ip = data.Accept();
 					TranslationMovement movement;
 
@@ -22,7 +26,7 @@ namespace NTransit {
 					}
 
 					if (movement.CanMove) {
-						movement.transform.Translate(movement.Direction * movement.Speed * UnityTime.DeltaTime, Space.World);
+						movement.transform.Translate(movement.Direction * movement.Speed * UnityTime.DeltaTime, movement.Space);
 					}
 
 					Send("Out", ip);

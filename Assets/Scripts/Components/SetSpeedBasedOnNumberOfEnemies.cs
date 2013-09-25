@@ -5,8 +5,12 @@ using NTransit.Unity;
 using UnityEngine;
 
 public class SetSpeedBasedOnNumberOfEnemies : PropagatorComponent {
-	public SetSpeedBasedOnNumberOfEnemies(string name) : base(name) {
-		Receive["In"] = data => {
+	public SetSpeedBasedOnNumberOfEnemies(string name) : base(name) { }
+
+	public override void Setup() {
+		base.Setup();
+	
+		InPorts["In"].Receive = data => {
 			var ip = data.Accept();
 			var collection = ip.ContentAs<IReadOnlyCollection<object>>();
 

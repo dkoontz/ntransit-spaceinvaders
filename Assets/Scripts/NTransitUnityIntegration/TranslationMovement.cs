@@ -7,6 +7,7 @@ namespace NTransit {
 			public Vector3 Direction;
 			public float Speed;
 			public bool CanMove = true;
+			public Space Space = Space.World;
 		}
 	}
 }

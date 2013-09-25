@@ -15,10 +15,12 @@ namespace NTransit {
 		public class AnyInCollectionTouchingTrigger : Component {
 			string tag;
 
-			public AnyInCollectionTouchingTrigger(string name) : base(name) {
-				Receive["Tag"] = data => tag = data.Accept().ContentAs<string>();
+			public AnyInCollectionTouchingTrigger(string name) : base(name) { }
 
-				Receive["IEnumerable"] = data => {
+			public override void Setup() {
+				InPorts["Tag"].Receive = data => tag = data.Accept().ContentAs<string>();
+
+				InPorts["IEnumerable"].Receive = data => {
 					var ip = data.Accept();
 					var enterTrigger = false;
 					var exitTrigger = false;

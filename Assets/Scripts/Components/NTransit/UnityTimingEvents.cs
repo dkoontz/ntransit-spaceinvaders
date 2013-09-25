@@ -14,29 +14,31 @@ namespace NTransit {
 			bool lateUpdate = true;
 			bool fixedUpdate = true;
 
-			public UnityTimingEvents(string name) : base(name) {
-				Update = () => {
-					if (start && OutportIsConnected("Start")) {
-						Send("Start", new InformationPacket(null, InformationPacket.PacketType.Auto));
-						start = false;
-					}
+			public UnityTimingEvents(string name) : base(name) { }
 
-					if (update && OutportIsConnected("Update")) {
-						Send("Update", new InformationPacket(null, InformationPacket.PacketType.Auto));
-						update = false;
-					}
+			public override void Setup() { }
 
-					if (lateUpdate && OutportIsConnected("LateUpdate")) {
-						Send("LateUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
-						lateUpdate = false;
-					}
+			protected override bool Update() {
+				if (start && OutportIsConnected("Start")) {
+					Send("Start", new InformationPacket(null, InformationPacket.PacketType.Auto));
+					start = false;
+				}
 
-					if (fixedUpdate && OutportIsConnected("FixedUpdate")) {
-						Send("FixedUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
-						fixedUpdate = false;
-					}
-					return false;
-				};
+				if (update && OutportIsConnected("Update")) {
+					Send("Update", new InformationPacket(null, InformationPacket.PacketType.Auto));
+					update = false;
+				}
+
+				if (lateUpdate && OutportIsConnected("LateUpdate")) {
+					Send("LateUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
+					lateUpdate = false;
+				}
+
+				if (fixedUpdate && OutportIsConnected("FixedUpdate")) {
+					Send("FixedUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
+					fixedUpdate = false;
+				}
+				return false;
 			}
 
 			public void OnStart() {

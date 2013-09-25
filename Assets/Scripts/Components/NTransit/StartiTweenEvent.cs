@@ -11,9 +11,13 @@ namespace NTransit {
 			string tweenName;
 			string onCompleteCallback;
 
-			public StartiTweenEvent(string name) : base(name) {
-				Receive["TweenName"] = data => tweenName = data.Accept().ContentAs<string>();
-				Receive["In"] = data => {
+			public StartiTweenEvent(string name) : base(name) { }
+
+			public override void Setup() {
+				base.Setup();
+
+				InPorts["TweenName"].Receive = data => tweenName = data.Accept().ContentAs<string>();
+				InPorts["In"].Receive = data => {
 					var ip = data.Accept();
 					GameObject gameObject;
 

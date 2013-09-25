@@ -14,10 +14,12 @@ namespace NTransit {
 		public class TouchingTrigger : Component {
 			string tag;
 
-			public TouchingTrigger(string name) : base(name) {
-				Receive["Tag"] = data => tag = data.Accept().ContentAs<string>();
+			public TouchingTrigger(string name) : base(name) { }
 
-				Receive["In"] = data => {
+			public override void Setup() {
+				InPorts["Tag"].Receive = data => tag = data.Accept().ContentAs<string>();
+
+				InPorts["In"].Receive = data => {
 					var ip = data.Accept();
 					CollisionRecorder collisionRecord;
 					string objectName;

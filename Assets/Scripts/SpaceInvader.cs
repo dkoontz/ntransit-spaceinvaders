@@ -3,6 +3,7 @@ using System.Collections;
 using NTransit.Unity;
 
 public class SpaceInvader : MonoBehaviour {
+	public GameObject Projectile;
 	public ParticleSystem DestructionEffect;
 
 	public void TurnAround() {
