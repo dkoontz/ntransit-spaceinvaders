@@ -6,10 +6,9 @@ using NTransit;
 namespace NTransit {
 	namespace Unity {
 
-		[InputPort("TweenName")]
+		[InputPort("TweenName", Type = typeof(StandardInputPort<GameObject>))]
 		public class StartiTweenEvent : PropagatorComponent {
 			string tweenName;
-			string onCompleteCallback;
 
 			public StartiTweenEvent(string name) : base(name) { }
 
@@ -28,7 +27,7 @@ namespace NTransit {
 						gameObject = ip.ContentAs<MonoBehaviour>().gameObject;
 					}
 					else {
-						throw new ArgumentException(string.Format("IP content was {0}, but must be a GameObject", ip.Content.GetType()));
+						throw new ArgumentException(string.Format("IP content was {0}, but must be a GameObject or MonoBehaviour", ip.Content.GetType()));
 					}
 
 					iTweenEvent.GetEvent(gameObject, tweenName).Play();

@@ -4,10 +4,10 @@ using NTransit;
 
 namespace NTransit {
 	namespace Unity {
-		[OutputPort("Start")]
-		[OutputPort("Update")]
-		[OutputPort("LateUpdate")]
-		[OutputPort("FixedUpdate")]
+		[ArrayOutputPort("Start")]
+		[ArrayOutputPort("Update")]
+		[ArrayOutputPort("LateUpdate")]
+		[ArrayOutputPort("FixedUpdate")]
 		public class UnityTimingEvents : Component {
 			bool start = true;
 			bool update = true;
@@ -19,24 +19,32 @@ namespace NTransit {
 			public override void Setup() { }
 
 			protected override bool Update() {
-				if (start && OutportIsConnected("Start")) {
-					Send("Start", new InformationPacket(null, InformationPacket.PacketType.Auto));
-					start = false;
+				if (start) {
+					foreach (var index in ArrayOutPorts["Start"].ConnectedIndicies) {
+						Send("Start", index, new InformationPacket(null, InformationPacket.PacketType.Auto));
+						start = false;
+					} 
 				}
 
-				if (update && OutportIsConnected("Update")) {
-					Send("Update", new InformationPacket(null, InformationPacket.PacketType.Auto));
-					update = false;
+				if (update) {
+					foreach (var index in ArrayOutPorts["Update"].ConnectedIndicies) {
+						Send("Update", index, new InformationPacket(null, InformationPacket.PacketType.Auto));
+						update = false;
+					}
 				}
 
-				if (lateUpdate && OutportIsConnected("LateUpdate")) {
-					Send("LateUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
-					lateUpdate = false;
+				if (lateUpdate) {
+					foreach (var index in ArrayOutPorts["LateUpdate"].ConnectedIndicies) {
+						Send("LateUpdate", index, new InformationPacket(null, InformationPacket.PacketType.Auto));
+						lateUpdate = false;
+					}
 				}
 
-				if (fixedUpdate && OutportIsConnected("FixedUpdate")) {
-					Send("FixedUpdate", new InformationPacket(null, InformationPacket.PacketType.Auto));
-					fixedUpdate = false;
+				if (fixedUpdate) {
+					foreach (var index in ArrayOutPorts["FixedUpdate"].ConnectedIndicies) {
+						Send("FixedUpdate", index, new InformationPacket(null, InformationPacket.PacketType.Auto));
+						fixedUpdate = false;
+					}
 				}
 				return false;
 			}

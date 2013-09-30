@@ -29,7 +29,9 @@ namespace NTransit {
 						movement.transform.Translate(movement.Direction * movement.Speed * UnityTime.DeltaTime, movement.Space);
 					}
 
-					Send("Out", ip);
+					if (OutPorts["Out"].Connected) {
+						Send("Out", ip);
+					}
 				};
 			}
 		}

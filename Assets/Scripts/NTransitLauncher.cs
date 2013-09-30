@@ -1,26 +1,30 @@
+using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
 using NTransit;
 using NTransit.Unity;
 
 public class NTransitLauncher : MonoBehaviour {
-	public SpaceInvader[] Invaders;
-	public string ScreenEdgeTag;
+	public GameObject[] Invaders;
 
 	SingleThreadedScheduler scheduler;
 	UnityTimingEvents unityTimingEvents;
-	Checkpoint checkpoint;
 
 	void Start () {
 		UnityTime.Time = Time.time;
+
 		var program = @"
+# Space Invader Behavior
 <EnemyGameObjects> -> Enemies(CollectionStorage).ICollection
-UnityTimingEvent(UnityTimingEvents).Update -> Enemies.Send
+UnityTimingEvent(UnityTimingEvents).Update[0] -> Enemies.Send
 Enemies.Out -> SetEnemySpeed(SetSpeedBasedOnNumberOfEnemies).In
-SetEnemySpeed.Out -> SplitForProjectileCheck(ForEach).In
-'Projectile' -> TouchingProjectile(TouchingTrigger).Tag
+SetEnemySpeed.Out -> FireIfEnoughTimeElapsed(InvaderFireTimer).In
+FireIfEnoughTimeElapsed.Projectile -> Projectiles(CollectionStorage).Add
+FireIfEnoughTimeElapsed.Out -> SplitForProjectileCheck(ForEach).In
+'Player Projectile' -> TouchingProjectile(TouchingTrigger).Tag
 SplitForProjectileCheck.Out -> TouchingProjectile.In
-'Destroy' -> BlowUp(TriggerAction).Action
+'Destroy' -> BlowUp(TriggerComponentAction).Action
+'SpaceInvader' -> BlowUp.ComponentName
 TouchingProjectile.Enter -> BlowUp.In
 BlowUp.Out -> Enemies.Remove
 TouchingProjectile.None -> EnemyHorizontalMovement(TranslateGameObject).In
@@ -36,16 +40,31 @@ SplitForAnimation.Out -> SlideDown.In
 false -> TurnOffMovement.Value
 'TranslationMovement' -> TurnOffMovement.ComponentName
 SlideDown.Out -> TurnOffMovement.Object
-'TurnAround' -> ReverseDirection(TriggerAction).Action
+'TurnAround' -> ReverseDirection(TriggerComponentAction).Action
+'SpaceInvader' -> ReverseDirection.ComponentName
 TurnOffMovement.Out -> ReverseDirection.In
 
-TouchingProjectile.Stay -> Drop.In
-TouchingProjectile.Exit -> Drop.In
-ReverseDirection.Out -> Drop.In
-SplitForAnimation.Original -> Drop.In
-TouchingWall.Stay -> Drop.In
-TouchingWall.Exit -> Drop.In
-TouchingWall.None -> Drop.In
+# Projectile Behavior
+UnityTimingEvent.Update[1] -> Projectiles.Send
+Projectiles.Out -> SplitForCollisionCheck(ForEach).In
+SplitForCollisionCheck.Out -> IfProjectileCollided(TouchingTrigger).In
+IfProjectileCollided.Enter -> DestroyProjectile(DestroyGameObject).In
+DestroyProjectile.Out -> Projectiles.Remove
+IfProjectileCollided.None -> MoveProjectile(TranslateGameObject).In
+
+# Player Behavior
+#UnityTimingEvent.Update[2] -> PlayerActions(PlayerEvents).TriggerUpdate
+#PlayerActions.Fired -> FireProjectile(FirePlayer).In
+#FireProjectile.Out -> Projectiles.Add
+#PlayerActions.Moved -> MovePlayer(TranslateGameObject).In
+#PlayerActions.Update -> PlayerTouchingProjectile(TouchingTrigger).In
+#'Enemy Projectile' -> DestroyPlayer(TriggerAction).Tag
+#'Player' -> DestroyPlayer.ComponentName
+#PlayerTouchingProjectile.Enter -> DestroyPlayer.In
+#DestroyPlayer.Out -> ConvertToActivation(SendActivation).In
+
+# Temp until menu is in place
+#ConvertToActivation.Out -> Drop.In
 ";
 
 		Dictionary<string, object> initialData = new Dictionary<string, object>();

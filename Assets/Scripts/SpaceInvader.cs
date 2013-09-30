@@ -3,8 +3,16 @@ using System.Collections;
 using NTransit.Unity;
 
 public class SpaceInvader : MonoBehaviour {
+	public float TimeSinceLastProjectileFired { get; set; }
+
+	public float TimeBetweenShots;
 	public GameObject Projectile;
 	public ParticleSystem DestructionEffect;
+	public Transform FireLocation;
+
+	public GameObject FireProjectile() {
+		return Instantiate(Projectile, FireLocation.position, FireLocation.rotation) as GameObject;
+	}
 
 	public void TurnAround() {
 		var movement = GetComponent<TranslationMovement>();

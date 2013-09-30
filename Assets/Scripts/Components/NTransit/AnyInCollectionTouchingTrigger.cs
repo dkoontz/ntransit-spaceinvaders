@@ -6,8 +6,8 @@ using System.Linq;
 
 namespace NTransit {
 	namespace Unity {
-		[InputPort("Tag")]
-		[InputPort("IEnumerable")]
+		[InputPort("Tag", Type = typeof(StandardInputPort<string>))]
+		[InputPort("IEnumerable", Type = typeof(StandardInputPort<IEnumerable>))]
 		[OutputPort("Enter")]
 		[OutputPort("Exit")]
 		[OutputPort("Stay")]
@@ -80,16 +80,16 @@ namespace NTransit {
 						}
 					}
 
-					if (enterTrigger) {
+					if (enterTrigger && OutPorts["Enter"].Connected) {
 						Send("Enter", ip);
 					}
-					else if (exitTrigger) {
+					else if (exitTrigger && OutPorts["Exit"].Connected) {
 						Send("Exit", ip);
 					}
-					else if (stayTrigger) {
+					else if (stayTrigger && OutPorts["Stay"].Connected) {
 						Send("Stay", ip);
 					}
-					else {
+					else if (OutPorts["None"].Connected){
 						Send("None", ip);
 					}
 				};
