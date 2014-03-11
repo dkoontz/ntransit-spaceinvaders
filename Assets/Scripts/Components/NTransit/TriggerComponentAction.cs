@@ -20,9 +20,7 @@ namespace NTransit {
 				InPorts["In"].Receive = data => {
 					var ip = data.Accept();
 					var target = ip.ContentAs<UnityEngine.GameObject>();
-					UnityEngine.Debug.Log(target.name);
 					var component = target.GetComponent(componentName);
-					UnityEngine.Debug.Log(component.GetType());
 					var action = component.GetType().GetMethod(actionName);
 					if (action == null) {
 						throw new ArgumentException(string.Format("The type '{0}' received by '{1}' does not contain a method named '{2}'", target.GetType(), Name, actionName));
